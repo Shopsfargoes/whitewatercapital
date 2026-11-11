@@ -16,11 +16,21 @@
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --fade: 1.2s;                      /* video crossfade, keep in sync with FADE_MS in main.js */
   --logo-w: min(520px, 78vw);        /* used by loader AND hero so the logo doesn't jump */
+  --logo-nudge: 0px;                 /* moves the big logo down (+) or up (-), e.g. 12px or -12px */
+
+  /* Which part of the video stays in frame on wide screens (x y).
+     Vertical clips: a higher y shows more creek, a lower y shows more sky.
+     With a landscape clip this barely matters. */
+  --video-pos: 50% 62%;
 }
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 body {
   margin: 0;
   background: var(--navy);
@@ -41,6 +51,20 @@ a { color: inherit; text-decoration: none; }
 ul { list-style: none; margin: 0; padding: 0; }
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
+/* Skip link: only visible when focused with the keyboard */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  padding: 0.75rem 1.25rem;
+  background: var(--white);
+  color: var(--navy);
+  font-size: 0.85rem;
+  transform: translateY(-120%);
+}
+.skip-link:focus { transform: translateY(0); }
+
 /* ---------- Loader (solid navy + logo) ---------- */
 .loader {
   position: fixed;
@@ -50,6 +74,8 @@ ul { list-style: none; margin: 0; padding: 0; }
   place-items: center;
   background: var(--navy);
   transition: opacity 1.2s var(--ease), visibility 0s linear 1.2s;
+  /* safety net: if the script never runs, the loader clears itself after 10 seconds */
+  animation: loaderFailsafe 0.01s linear 10s forwards;
 }
 .loader.is-done {
   opacity: 0;
@@ -59,12 +85,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .loader__logo {
   width: var(--logo-w);
   height: auto;
+  transform: translateY(var(--logo-nudge));
   opacity: 0;
   animation: logoIn 1.4s var(--ease) 0.3s forwards;
 }
 @keyframes logoIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+@keyframes loaderFailsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
 }
 
 /* ---------- Header (transparent) ---------- */
@@ -120,7 +150,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   margin: -1.25rem 0 -1.4rem;
 }
 
-/* All four links share one plain style (Investor Login included) */
+/* All four links share one plain style */
 .header__menu {
   display: flex;
   align-items: center;
@@ -179,17 +209,16 @@ ul { list-style: none; margin: 0; padding: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 25%;          /* keeps more sky in frame */
+  object-position: var(--video-pos);
   opacity: 0;
   transform: scale(1.06);            /* slow settle-in once the loader lifts */
-  filter: saturate(0.8) brightness(0.95) contrast(1.02);  /* gentle cool/muted grade */
   transition: opacity var(--fade) ease, transform 4s var(--ease);
 }
 .hero__video.is-active { opacity: 1; }
 .is-ready .hero__video { transform: scale(1); }
 
 /* Backdrop layer 2: navy tint for legibility, also fixed.
-   The river behind it goes out of focus as you scroll. */
+   The river behind it goes out of focus as you scroll (desktop only, see mobile block). */
 .hero__overlay {
   position: fixed;
   inset: 0;
@@ -215,22 +244,30 @@ ul { list-style: none; margin: 0; padding: 0; }
   opacity: calc(var(--p, 0) * 1.5);
 }
 
-/* Layer 3: content. The logo sits exactly where the loader logo is */
+/* Layer 3: content. Fixed to the screen with exactly the same box as the loader (fixed, inset 0,
+   centered grid), so the logo is centered on the visible screen and lines up with the loader logo.
+   It stays put and dissolves as you scroll; the About section covers it. */
 .hero__content {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
   padding: 0 1.5rem;
+  pointer-events: none;
   /* dissolves as you scroll: fades, blurs, drifts up and shrinks slightly */
   opacity: calc(1 - var(--p, 0) * 1.8);
   transform: translateY(calc(var(--p, 0) * -60px)) scale(calc(1 - var(--p, 0) * 0.05));
   filter: blur(calc(var(--p, 0) * 8px));
   will-change: opacity, transform, filter;
 }
+.hero__title {
+  margin: 0;
+  line-height: 0;
+}
 .hero__logo {
   width: var(--logo-w);
   height: auto;
+  transform: translateY(var(--logo-nudge));
 }
 
 /* Scroll arrow (circle) */
@@ -275,7 +312,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* ---------- About ---------- */
 .about {
   position: relative;
-  z-index: 1;                        /* sits above the fixed video */
+  z-index: 1;                        /* sits above the fixed video and the fixed logo */
   background: var(--mist);
   color: var(--text-body);
   text-align: center;
@@ -327,6 +364,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .about__login {
   display: inline-block;
   margin-top: clamp(4rem, 10vw, 7rem);
+  padding: 0.5rem 0;                 /* bigger tap target */
   font-size: 1.05rem;
   font-weight: 400;
   line-height: 1.4;
@@ -459,12 +497,12 @@ ul { list-style: none; margin: 0; padding: 0; }
   gap: 0.3rem;
 }
 .form__field label {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(0, 26, 64, 0.6);
+  color: rgba(0, 26, 64, 0.65);
 }
 .form__field input,
 .form__field textarea {
@@ -601,6 +639,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 .footer__item address { font-style: normal; }
 .footer__item a {
+  display: inline-block;
+  padding: 0.4rem 0;                 /* bigger tap target */
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.3em;
@@ -655,7 +695,7 @@ ul { list-style: none; margin: 0; padding: 0; }
     z-index: 2;
     flex-direction: column;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.25rem;
     background: var(--navy);
     opacity: 0;
     visibility: hidden;
@@ -666,9 +706,19 @@ ul { list-style: none; margin: 0; padding: 0; }
     visibility: visible;
     transition-delay: 0s;
   }
-  .header__menu a { font-size: 0.95rem; }
+  .header__menu a {
+    display: inline-block;
+    padding: 0.6rem 0;               /* bigger tap target */
+    font-size: 0.95rem;
+  }
 
   .hero__scroll { bottom: 2rem; }
+
+  /* Performance on phones: no animated full-screen blur */
+  .hero__overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 
   /* About on phones: lighter and less bulky */
   .about { padding-top: 4.5rem; padding-bottom: 4rem; }
@@ -692,9 +742,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 
   .footer__contact {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
-  .footer__item { flex-direction: column; gap: 0.2rem; }
+  .footer__item { flex-direction: column; gap: 0; }
 }
 
 /* ---------- Reduced motion ---------- */
