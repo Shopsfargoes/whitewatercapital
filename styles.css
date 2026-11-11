@@ -16,7 +16,7 @@
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --fade: 1.2s;                      /* video crossfade, keep in sync with FADE_MS in main.js */
   --logo-w: min(520px, 78vw);        /* used by loader AND hero so the logo doesn't jump */
-  --logo-nudge: 0px;                 /* moves the big logo down (+) or up (-), e.g. 12px or -12px */
+  --logo-top: 250px;                 /* distance from the top of the screen to the big logo (phones: see mobile block) */
 
   /* Which part of the video stays in frame on wide screens (x y).
      Vertical clips: a higher y shows more creek, a lower y shows more sky.
@@ -71,7 +71,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   inset: 0;
   z-index: 100;
   display: grid;
-  place-items: center;
+  place-items: start center;         /* logo is placed from the top, same as the hero logo */
   background: var(--navy);
   transition: opacity 1.2s var(--ease), visibility 0s linear 1.2s;
   /* safety net: if the script never runs, the loader clears itself after 10 seconds */
@@ -85,7 +85,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .loader__logo {
   width: var(--logo-w);
   height: auto;
-  transform: translateY(var(--logo-nudge));
+  margin-top: var(--logo-top);
   opacity: 0;
   animation: logoIn 1.4s var(--ease) 0.3s forwards;
 }
@@ -196,8 +196,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* --p (0 to 1) is set on :root by main.js as you scroll through the hero */
 .hero {
   position: relative;
-  min-height: 100vh;
-  min-height: 100svh;
+  height: 70vh;                      /* fallback for older browsers */
+  height: 70svh;
   /* no background or overflow:hidden here, so the fixed video behind shows through */
 }
 
@@ -244,14 +244,13 @@ ul { list-style: none; margin: 0; padding: 0; }
   opacity: calc(var(--p, 0) * 1.5);
 }
 
-/* Layer 3: content. Fixed to the screen with exactly the same box as the loader (fixed, inset 0,
-   centered grid), so the logo is centered on the visible screen and lines up with the loader logo.
-   It stays put and dissolves as you scroll; the About section covers it. */
+/* Layer 3: content. Fixed to the screen with the same box as the loader, so the logo lines up
+   with the loader logo. It stays put and dissolves as you scroll; the About section covers it. */
 .hero__content {
   position: fixed;
   inset: 0;
   display: grid;
-  place-items: center;
+  place-items: start center;         /* logo is placed from the top: see --logo-top */
   padding: 0 1.5rem;
   pointer-events: none;
   /* dissolves as you scroll: fades, blurs, drifts up and shrinks slightly */
@@ -267,7 +266,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .hero__logo {
   width: var(--logo-w);
   height: auto;
-  transform: translateY(var(--logo-nudge));
+  margin-top: var(--logo-top);       /* 250px on desktop, 110px on phones */
 }
 
 /* Scroll arrow (circle) */
@@ -686,6 +685,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 820px) {
+  :root { --logo-top: 110px; }       /* big logo sits 110px from the top on phones */
+
   .header__toggle { display: block; }
   .header__logo img { width: 150px; margin: -1rem 0 -1.2rem; }
 
@@ -740,11 +741,26 @@ ul { list-style: none; margin: 0; padding: 0; }
   .form__row { grid-template-columns: 1fr; }
   .form__submit { width: 100%; justify-self: stretch; }
 
+  /* Footer on phones: everything centered */
+  .footer { text-align: center; }
+  .footer__logo {
+    margin-left: auto;
+    margin-right: auto;
+  }
   .footer__contact {
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 0.5rem;
   }
-  .footer__item { flex-direction: column; gap: 0; }
+  .footer__item {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    text-align: center;
+  }
+  .footer__disclaimer,
+  .footer__copy { text-align: center; }
 }
 
 /* ---------- Reduced motion ---------- */
