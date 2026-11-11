@@ -247,8 +247,32 @@
   window.addEventListener('load', onScroll);
   onScroll();
 
-  /* ---------- Contact form (Formspree) ---------- */
+  /* ---------- Contact pop-up + form (Formspree) ---------- */
+  const modal = document.getElementById('contactModal');
+  const openBtn = document.getElementById('contactOpen');
+  const closeBtn = document.getElementById('contactClose');
   const form = document.getElementById('contactForm');
+
+  if (modal && openBtn) {
+    openBtn.addEventListener('click', () => {
+      if (form) {
+        const s = form.querySelector('.form__status');
+        s.textContent = '';
+        s.className = 'form__status';
+      }
+      modal.showModal();
+      body.classList.add('modal-open');
+    });
+
+    closeBtn.addEventListener('click', () => modal.close());
+
+    // Click on the dimmed area outside the box closes it
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+
+    // Fires for every way of closing (button, Esc, backdrop, after sending)
+    modal.addEventListener('close', () => body.classList.remove('modal-open'));
+  }
+
   if (form) {
     const status = form.querySelector('.form__status');
     const btn = form.querySelector('.form__submit');
@@ -270,6 +294,7 @@
         form.reset();
         status.textContent = 'Thank you. Your message has been sent.';
         status.classList.add('is-success');
+        if (modal) setTimeout(() => { if (modal.open) modal.close(); }, 2800);
       } catch (err) {
         status.textContent = 'Something went wrong. Please try again or email us directly.';
         status.classList.add('is-error');
