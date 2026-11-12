@@ -83,13 +83,15 @@ ul { list-style: none; margin: 0; padding: 0; }
   pointer-events: none;
 }
 
-/* Logo reveal, in two layers stacked in exactly the same spot:
-   1) the trees, hills and river rise from the bottom upward with a soft edge, then
-   2) the "Whitewater Capital" wordmark fades in beneath.
-   When both are finished it is identical to the hero logo (same size and position).
+/* Logo reveal, in two layers stacked in exactly the same spot (both use the full logo image):
+   1) the trees, hills and river rise from the ground line upward, then
+   2) the "Whitewater Capital" wordmark wipes in from left to right,
+   with a thin loading line underneath until the page is ready.
+   When finished it is identical to the hero logo (same size and position).
    The logo image is 1040 x 316 px; the empty gap between the trees and the wordmark is at row 223,
    which is where the two layers are split (223 / 316 = 70.57%). */
 .loader__logo {
+  position: relative;
   width: var(--logo-w);
   margin-top: var(--logo-top);
   display: grid;                     /* both layers occupy the same cell */
@@ -105,42 +107,48 @@ ul { list-style: none; margin: 0; padding: 0; }
   align-self: start;
   aspect-ratio: 1040 / 223;
   overflow: hidden;
-  /* soft-edged reveal from the bottom up: a tall gradient mask slides upward */
-  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 33.34%, transparent 66.67%, transparent 100%);
-  mask-image: linear-gradient(to top, #000 0%, #000 33.34%, transparent 66.67%, transparent 100%);
-  -webkit-mask-size: 100% 300%;
-  mask-size: 100% 300%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: 0 0%;
-  mask-position: 0 0%;
-  /* speed: 1.7s, starts after 0.3s */
-  animation: treesGrow 1.7s cubic-bezier(0.33, 0, 0.2, 1) 0.3s both;
+  clip-path: inset(100% 0 0 0);
+  transform: translateY(8px);
+  /* speed: 1.4s, starts after 0.2s */
+  animation: treesRise 1.4s cubic-bezier(0.22, 0.8, 0.25, 1) 0.2s forwards;
 }
-@keyframes treesGrow {
-  from {
-    -webkit-mask-position: 0 0%;
-    mask-position: 0 0%;
-    transform: translateY(10px);
-  }
-  to {
-    -webkit-mask-position: 0 100%;
-    mask-position: 0 100%;
-    transform: translateY(0);
-  }
+@keyframes treesRise {
+  to { clip-path: inset(0 0 0 0); transform: none; }
 }
 
 /* Layer 2: the wordmark. Same full-logo image, cut to the part below the split line. */
 .loader__word {
   grid-area: 1 / 1;
-  clip-path: inset(70.57% 0 0 0);
-  /* speed: 1.2s, starts at 1.5s (just before the trees finish) */
-  animation: wordIn 1.2s var(--ease) 1.5s both;
+  clip-path: inset(70.57% 100% 0 0);
+  /* speed: 1.2s, starts at 1.1s (just before the trees finish) */
+  animation: wordWipe 1.2s ease-out 1.1s forwards;
 }
-@keyframes wordIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes wordWipe {
+  to { clip-path: inset(70.57% 0 0 0); }
 }
+
+/* Thin loading line under the logo (only exists while the loader is up) */
+.loader__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2.25rem);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  opacity: 0;
+  animation: barIn 0.6s ease 1.2s forwards;
+}
+.loader__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--white);
+  transform: translateX(-100%);
+  animation: barSlide 1.6s ease-in-out 1.2s infinite;
+}
+@keyframes barIn    { to { opacity: 1; } }
+@keyframes barSlide { to { transform: translateX(100%); } }
 
 @keyframes loaderFailsafe {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -872,5 +880,6 @@ ul { list-style: none; margin: 0; padding: 0; }
   /* the intro logo just appears, with no waiting for its delays */
   .loader__trees,
   .loader__word { animation-delay: 0s !important; }
+  .loader__bar { display: none; }
   .hero__scroll svg { animation: none; }
 }
