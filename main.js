@@ -2,7 +2,7 @@
   'use strict';
 
   const FADE_MS = 1200;       // keep in sync with --fade in styles.css
-  const MIN_INTRO_MS = 2400;  // shortest time the loader stays up
+  const MIN_INTRO_MS = 3000;  // shortest time the loader stays up
   const MAX_INTRO_MS = 6000;  // never keep a visitor waiting longer than this
 
   const body = document.body;
@@ -12,6 +12,7 @@
   const toggle = document.getElementById('navToggle');
   const menu = document.getElementById('navMenu');
   const hero = document.getElementById('top');
+  const about = document.getElementById('about');
   const video = document.querySelector('.hero__video');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -81,9 +82,27 @@
       let front = a;
       let back = b;
       let swapping = false;
+      let playing = true;
+      let heroVisible = true;
+
+      // Pause the video when it can't be seen (scrolled past the hero, or tab hidden) to save battery
+      function setPlaying(on) {
+        if (on === playing) return;
+        playing = on;
+        if (on) front.play().catch(() => {});
+        else { a.pause(); b.pause(); }
+      }
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+          heroVisible = entries[0].isIntersecting;
+          setPlaying(heroVisible && !document.hidden);
+        }).observe(hero);
+      }
+      document.addEventListener('visibilitychange', () => setPlaying(heroVisible && !document.hidden));
 
       function tick() {
-        if (!swapping && front.duration && front.currentTime >= front.duration - FADE_MS / 1000) {
+        if (playing && !swapping && front.duration && front.currentTime >= front.duration - FADE_MS / 1000) {
           swapping = true;
           back.currentTime = 0;
           back.play().catch(() => {});
@@ -103,10 +122,10 @@
       }
       requestAnimationFrame(tick);
 
-      // Safety net (e.g. tab was in the background and the clip hit its end)
+      // Safety net (e.g. the clip hit its end while the tab was in the background)
       [a, b].forEach((v) => {
         v.addEventListener('ended', () => {
-          if (v === front && !swapping) {
+          if (v === front && !swapping && playing) {
             v.currentTime = 0;
             v.play().catch(() => {});
           }
@@ -116,8 +135,8 @@
   }
 
   /* ---------- Heavier scroll (mouse wheel / trackpad) ---------- */
-  const SCROLL_SPEED = 0.6;    // distance per wheel tick: 1 = normal, lower = heavier
-  const SCROLL_EASE = 0.07;    // 0 to 1: lower = more drag before it settles
+  const SCROLL_SPEED = 0.95;    // distance per wheel tick: 1 = normal, lower = heavier
+  const SCROLL_EASE = 0.15;    // 0 to 1: lower = more drag before it settles
 
   function initHeavyScroll() {
     if (reduceMotion) return;
@@ -150,7 +169,9 @@
 
     window.addEventListener('wheel', (e) => {
       if (e.ctrlKey) return;                                        // pinch-zoom
-      if (body.classList.contains('is-loading') || body.classList.contains('menu-open')) return;
+      if (body.classList.contains('is-loading') ||
+          body.classList.contains('menu-open') ||
+          body.classList.contains('modal-open')) return;
       if (e.target.closest && e.target.closest('textarea')) return; // let the message box scroll itself
 
       e.preventDefault();
@@ -175,7 +196,7 @@
 
   /* ---------- About: split text into words for the scroll highlight ---------- */
   const GREY = [195, 201, 210];   // matches --text-grey
-  const NAVY = [0, 26, 64];       // matches --navy
+  const NAVY = [77, 86, 96];      // matches --text-body (#4d5660), the final text color
   const SOFT = 5;                 // how many words are mid-transition at once (bigger = softer wave)
 
   const group = document.querySelector('[data-reveal-group]');
@@ -231,15 +252,25 @@
   }
 
   /* ---------- Scroll handling (one throttled handler) ---------- */
+  // The navy band appears when the top edge of the About section rises above this fraction
+  // of the screen height. 0.75 = as About starts coming into view. Lower = later (0 = at the very top).
+  const BAND_TRIGGER = 0.75;
+
   let ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
-      header.classList.toggle('is-scrolled', window.scrollY > 40);
-      updateHeroFade();
-      updateReveal();
-      ticking = false;
+      try {
+        const bandOn = about
+          ? about.getBoundingClientRect().top <= window.innerHeight * BAND_TRIGGER
+          : window.scrollY > 40;
+        header.classList.toggle('is-scrolled', bandOn);
+        updateHeroFade();
+        updateReveal();
+      } finally {
+        ticking = false;          // always reset, even if something above fails
+      }
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });

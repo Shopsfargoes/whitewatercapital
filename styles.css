@@ -21,7 +21,7 @@
   /* Which part of the video stays in frame on wide screens (x y).
      Vertical clips: a higher y shows more creek, a lower y shows more sky.
      With a landscape clip this barely matters. */
-  --video-pos: 50% 62%;
+  --video-pos: 50% 45%;
 }
 
 /* ---------- Base ---------- */
@@ -82,17 +82,66 @@ ul { list-style: none; margin: 0; padding: 0; }
   visibility: hidden;
   pointer-events: none;
 }
+
+/* Logo reveal, in two layers stacked in exactly the same spot:
+   1) the trees, hills and river rise from the bottom upward with a soft edge, then
+   2) the "Whitewater Capital" wordmark fades in beneath.
+   When both are finished it is identical to the hero logo (same size and position).
+   The logo image is 1040 x 316 px; the empty gap between the trees and the wordmark is at row 223,
+   which is where the two layers are split (223 / 316 = 70.57%). */
 .loader__logo {
   width: var(--logo-w);
-  height: auto;
   margin-top: var(--logo-top);
-  opacity: 0;
-  animation: logoIn 1.4s var(--ease) 0.3s forwards;
+  display: grid;                     /* both layers occupy the same cell */
 }
-@keyframes logoIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+.loader__logo img {
+  width: 100%;
+  height: auto;
 }
+
+/* Layer 1: the trees. A box cut off at the split line; the image inside is the full logo. */
+.loader__trees {
+  grid-area: 1 / 1;
+  align-self: start;
+  aspect-ratio: 1040 / 223;
+  overflow: hidden;
+  /* soft-edged reveal from the bottom up: a tall gradient mask slides upward */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 33.34%, transparent 66.67%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, #000 33.34%, transparent 66.67%, transparent 100%);
+  -webkit-mask-size: 100% 300%;
+  mask-size: 100% 300%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0 0%;
+  mask-position: 0 0%;
+  /* speed: 1.7s, starts after 0.3s */
+  animation: treesGrow 1.7s cubic-bezier(0.33, 0, 0.2, 1) 0.3s both;
+}
+@keyframes treesGrow {
+  from {
+    -webkit-mask-position: 0 0%;
+    mask-position: 0 0%;
+    transform: translateY(10px);
+  }
+  to {
+    -webkit-mask-position: 0 100%;
+    mask-position: 0 100%;
+    transform: translateY(0);
+  }
+}
+
+/* Layer 2: the wordmark. Same full-logo image, cut to the part below the split line. */
+.loader__word {
+  grid-area: 1 / 1;
+  clip-path: inset(70.57% 0 0 0);
+  /* speed: 1.2s, starts at 1.5s (just before the trees finish) */
+  animation: wordIn 1.2s var(--ease) 1.5s both;
+}
+@keyframes wordIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes loaderFailsafe {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
 }
@@ -196,8 +245,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* --p (0 to 1) is set on :root by main.js as you scroll through the hero */
 .hero {
   position: relative;
-  height: 70vh;                      /* fallback for older browsers */
-  height: 70svh;
+  min-height: 100vh;
+  min-height: 100svh;
   /* no background or overflow:hidden here, so the fixed video behind shows through */
 }
 
@@ -616,10 +665,35 @@ ul { list-style: none; margin: 0; padding: 0; }
   gap: 1.1rem;
   text-align: right;
 }
+
+/* Name block: Wesley Simons, company, mobile number */
+.footer__person {
+  display: grid;
+  gap: 0.15rem;
+  text-align: right;
+}
+.footer__name {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.footer__role {
+  margin: 0 0 0.35rem;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+}
+.footer__person .footer__item { justify-content: flex-end; }
+
 .footer__contact {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: baseline;             /* email and office sit on the same text line */
   gap: 0.75rem 2.5rem;
 }
 .footer__item {
@@ -639,7 +713,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .footer__item address { font-style: normal; }
 .footer__item a {
   display: inline-block;
-  padding: 0.4rem 0;                 /* bigger tap target */
+  padding: 0.4rem 0;                 /* bigger tap target... */
+  margin: -0.4rem 0;                 /* ...that doesn't push the text out of line */
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.3em;
@@ -653,10 +728,12 @@ ul { list-style: none; margin: 0; padding: 0; }
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ---------- Tablet and phone: one column, in a sensible reading order ----------
-   logo, then email and office, then the disclaimer, then the copyright line.
+/* ---------- Tablet and phone footer: one centered column ----------
+   logo, then name block, then email and office, then a full-width divider, the disclaimer, the copyright.
    The two wrapper columns are dissolved (display: contents) so each piece can be ordered on its own. */
 @media (max-width: 1100px) {
+  .footer { text-align: center; }
+
   .footer__inner {
     flex-direction: column;
     align-items: stretch;
@@ -667,20 +744,40 @@ ul { list-style: none; margin: 0; padding: 0; }
 
   .footer__logo {
     order: 1;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.75rem;
   }
-  .footer__contact {
+
+  /* Name block, centered */
+  .footer__person {
     order: 2;
-    justify-content: flex-start;
-    margin-bottom: 2rem;
+    justify-items: center;
+    text-align: center;
+    margin-bottom: 1.75rem;
   }
-  .footer__disclaimer {
+  .footer__person .footer__item { justify-content: center; }
+
+  /* Email and office on one centered row, with the full-width divider underneath */
+  .footer__contact {
     order: 3;
-    margin: 0 0 1.25rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    justify-content: center;
+    gap: 0.5rem 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .footer__copy { order: 4; }
+  .footer__item { text-align: center; }
+
+  /* Disclaimer: a centered block of about three lines */
+  .footer__disclaimer {
+    order: 4;
+    max-width: 720px;
+    margin: 1.75rem auto 1.25rem;
+    text-align: center;
+  }
+
+  .footer__copy {
+    order: 5;
+    text-align: center;
+  }
 }
 
 /* ---------- Mobile ---------- */
@@ -689,6 +786,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 
   .header__toggle { display: block; }
   .header__logo img { width: 150px; margin: -1rem 0 -1.2rem; }
+
+  /* The navy band on phones: solid navy, no blur. Blur effects can fail to paint on some phone
+     browsers until the page is redrawn, which made the band show up late. Solid always paints. */
+  .header::before {
+    background: var(--navy);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 
   .header__menu {
     position: fixed;
@@ -740,27 +845,20 @@ ul { list-style: none; margin: 0; padding: 0; }
   .modal__panel { padding: 2rem 1.25rem 1.75rem; }
   .form__row { grid-template-columns: 1fr; }
   .form__submit { width: 100%; justify-self: stretch; }
+}
 
-  /* Footer on phones: everything centered */
-  .footer { text-align: center; }
-  .footer__logo {
-    margin-left: auto;
-    margin-right: auto;
-  }
+/* ---------- Small phones: label above value, each centered ---------- */
+@media (max-width: 600px) {
   .footer__contact {
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
   }
   .footer__item {
     flex-direction: column;
     align-items: center;
     gap: 0;
-    text-align: center;
   }
-  .footer__disclaimer,
-  .footer__copy { text-align: center; }
 }
 
 /* ---------- Reduced motion ---------- */
@@ -771,5 +869,8 @@ ul { list-style: none; margin: 0; padding: 0; }
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
   }
+  /* the intro logo just appears, with no waiting for its delays */
+  .loader__trees,
+  .loader__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
 }
