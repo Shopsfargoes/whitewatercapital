@@ -85,8 +85,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* Logo reveal, in two layers stacked in exactly the same spot (both use the full logo image):
    1) the trees, hills and river rise from the ground line upward, then
-   2) the "Whitewater Capital" wordmark wipes in from left to right,
-   with a thin loading line underneath until the page is ready.
+   2) the "Whitewater Capital" wordmark wipes in from left to right.
    When finished it is identical to the hero logo (same size and position).
    The logo image is 1040 x 316 px; the empty gap between the trees and the wordmark is at row 223,
    which is where the two layers are split (223 / 316 = 70.57%). */
@@ -109,8 +108,8 @@ ul { list-style: none; margin: 0; padding: 0; }
   overflow: hidden;
   clip-path: inset(100% 0 0 0);
   transform: translateY(8px);
-  /* speed: 1.4s, starts after 0.2s */
-  animation: treesRise 1.4s cubic-bezier(0.22, 0.8, 0.25, 1) 0.2s forwards;
+  /* speed: 2.2s, starts after 0.3s */
+  animation: treesRise 2.2s cubic-bezier(0.22, 0.8, 0.25, 1) 0.3s forwards;
 }
 @keyframes treesRise {
   to { clip-path: inset(0 0 0 0); transform: none; }
@@ -120,35 +119,12 @@ ul { list-style: none; margin: 0; padding: 0; }
 .loader__word {
   grid-area: 1 / 1;
   clip-path: inset(70.57% 100% 0 0);
-  /* speed: 1.2s, starts at 1.1s (just before the trees finish) */
-  animation: wordWipe 1.2s ease-out 1.1s forwards;
+  /* speed: 1.8s, starts at 1.5s (just before the trees finish) */
+  animation: wordWipe 1.8s ease-out 1.5s forwards;
 }
 @keyframes wordWipe {
   to { clip-path: inset(70.57% 0 0 0); }
 }
-
-/* Thin loading line under the logo (only exists while the loader is up) */
-.loader__bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 2.25rem);
-  height: 2px;
-  background: rgba(255, 255, 255, 0.15);
-  overflow: hidden;
-  opacity: 0;
-  animation: barIn 0.6s ease 1.2s forwards;
-}
-.loader__bar::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--white);
-  transform: translateX(-100%);
-  animation: barSlide 1.6s ease-in-out 1.2s infinite;
-}
-@keyframes barIn    { to { opacity: 1; } }
-@keyframes barSlide { to { transform: translateX(100%); } }
 
 @keyframes loaderFailsafe {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -640,9 +616,9 @@ ul { list-style: none; margin: 0; padding: 0; }
   max-width: 1300px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   align-items: flex-start;
-  gap: 2.5rem 4rem;
+  gap: 2.5rem 5rem;
 }
 
 /* Left column is wide enough for the disclaimer to sit on three lines */
@@ -669,7 +645,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .footer__right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: start;
   gap: 1.1rem;
   text-align: right;
 }
@@ -700,7 +676,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .footer__contact {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: start;
   align-items: baseline;             /* email and office sit on the same text line */
   gap: 0.75rem 2.5rem;
 }
@@ -880,6 +856,5 @@ ul { list-style: none; margin: 0; padding: 0; }
   /* the intro logo just appears, with no waiting for its delays */
   .loader__trees,
   .loader__word { animation-delay: 0s !important; }
-  .loader__bar { display: none; }
   .hero__scroll svg { animation: none; }
 }

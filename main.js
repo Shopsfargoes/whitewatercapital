@@ -2,7 +2,7 @@
   'use strict';
 
   const FADE_MS = 1200;       // keep in sync with --fade in styles.css
-  const MIN_INTRO_MS = 3000;  // shortest time the loader stays up
+  const MIN_INTRO_MS = 4000;  // shortest time the loader stays up
   const MAX_INTRO_MS = 6000;  // never keep a visitor waiting longer than this
 
   const body = document.body;
