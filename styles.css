@@ -259,9 +259,9 @@ ul { list-style: none; margin: 0; padding: 0; }
   pointer-events: none;
   background:
     linear-gradient(to bottom,
-      rgba(0, 26, 64, 0.55) 100%,
-      rgba(0, 26, 64, 0.18) 100%,
-      rgba(0, 26, 64, 0.28) 100%,
+      rgba(0, 26, 64, 0.55) 0%,
+      rgba(0, 26, 64, 0.18) 35%,
+      rgba(0, 26, 64, 0.28) 65%,
       rgba(0, 26, 64, 0.70) 100%),
     rgba(24, 42, 69, 0.18);
   -webkit-backdrop-filter: blur(calc(var(--p, 0) * 8px));
@@ -616,22 +616,22 @@ ul { list-style: none; margin: 0; padding: 0; }
   max-width: 1300px;
   margin: 0 auto;
   display: flex;
-  justify-content: start;
+  flex-direction: column;            /* stacked instead of side by side */
   align-items: flex-start;
-  gap: 2.5rem 5rem;
+  gap: 2rem;
 }
 
-/* Left column is wide enough for the disclaimer to sit on three lines */
+/* Left block: logo and disclaimer */
 .footer__left {
-  flex: 0 1 760px;
+  flex: none;                        /* was flex: 0 1 760px, which would turn into a height in a column */
   min-width: 0;
 }
-.footer__logo { display: block; width: 150px; }
+.footer__logo { display: block; width: 230px; }
 .footer__logo img {
-  width: 150px;
+  width: 230px;
   height: auto;
   /* trims the empty space built into the logo PNG */
-  margin: -0.75rem 0 -0.5rem;
+  margin: -1.1rem 0 -0.75rem;
 }
 .footer__disclaimer {
   max-width: 760px;
@@ -712,64 +712,68 @@ ul { list-style: none; margin: 0; padding: 0; }
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* ---------- Tablet and phone footer: one centered column ----------
+/* ---------- Footer layout: one centered column (all screen sizes) ----------
    logo, then name block, then email and office, then a full-width divider, the disclaimer, the copyright.
    The two wrapper columns are dissolved (display: contents) so each piece can be ordered on its own. */
-@media (max-width: 1100px) {
-  .footer { text-align: center; }
+.footer { text-align: center; }
 
-  .footer__inner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-  }
-  .footer__left,
-  .footer__right { display: contents; }
+.footer__inner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.footer__left,
+.footer__right { display: contents; }
 
-  .footer__logo {
-    order: 1;
-    margin: 0 auto 1.75rem;
-  }
+.footer__logo {
+  order: 1;
+  margin: 0 auto 1.75rem;
+}
 
-  /* Name block, centered */
-  .footer__person {
-    order: 2;
-    justify-items: center;
-    text-align: center;
-    margin-bottom: 1.75rem;
-  }
-  .footer__person .footer__item { justify-content: center; }
+/* Name block, centered */
+.footer__person {
+  order: 2;
+  justify-items: center;
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+.footer__person .footer__item { justify-content: center; }
 
-  /* Email and office on one centered row, with the full-width divider underneath */
-  .footer__contact {
-    order: 3;
-    justify-content: center;
-    gap: 0.5rem 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .footer__item { text-align: center; }
+/* Email and office on one centered row, with the full-width divider underneath */
+.footer__contact {
+  order: 3;
+  justify-content: center;
+  gap: 0.5rem 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.footer__item { text-align: center; }
 
-  /* Disclaimer: a centered block of about three lines */
-  .footer__disclaimer {
-    order: 4;
-    max-width: 720px;
-    margin: 1.75rem auto 1.25rem;
-    text-align: center;
-  }
+/* Disclaimer: a centered block of about three lines */
+.footer__disclaimer {
+  order: 4;
+  max-width: 720px;
+  margin: 1.75rem auto 1.25rem;
+  text-align: center;
+}
 
-  .footer__copy {
-    order: 5;
-    text-align: center;
-  }
+.footer__copy {
+  order: 5;
+  text-align: center;
 }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 820px) {
-  :root { --logo-top: 110px; }       /* big logo sits 110px from the top on phones */
+  :root { --logo-top: 0px; }         /* on phones the logo is centered vertically instead (see next rule) */
+  .loader,
+  .hero__content { place-items: center; }   /* vertical + horizontal middle of the screen */
 
   .header__toggle { display: block; }
   .header__logo img { width: 150px; margin: -1rem 0 -1.2rem; }
+
+  /* footer logo back to the smaller size on phones */
+  .footer__logo { width: 150px; }
+  .footer__logo img { width: 150px; margin: -0.75rem 0 -0.5rem; }
 
   /* The navy band on phones: solid navy, no blur. Blur effects can fail to paint on some phone
      browsers until the page is redrawn, which made the band show up late. Solid always paints. */
