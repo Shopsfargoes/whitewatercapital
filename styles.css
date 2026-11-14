@@ -730,6 +730,411 @@ ul { list-style: none; margin: 0; padding: 0; }
   margin: 0 auto 1.75rem;
 }
 
+/* Na: arrowIn 1.4s var(--ease) 0.9s backwards;
+}
+@keyframes arrowIn {
+  from { opacity: 0; }
+}
+.hero__scroll svg { animation: arrowBob 2.2s ease-in-out infinite; }
+.hero__scroll:hover {
+  background: var(--white);
+  border-color: var(--white);
+  color: var(--navy);
+}
+@keyframes arrowBob {
+  0%, 100% { transform: translateY(-2px); }
+  50%      { transform: translateY(3px); }
+}
+
+/* ---------- About ---------- */
+.about {
+  position: relative;
+  z-index: 1;                        /* sits above the fixed video and the fixed logo */
+  background: var(--mist);
+  color: var(--text-body);
+  text-align: center;
+  padding:
+    clamp(5rem, 12vw, 9rem)
+    clamp(1.5rem, 4vw, 3.5rem)
+    clamp(4rem, 9vw, 7rem);
+}
+/* Soft edge: ends in the same color as the section.
+   Invisible at the top of the page (--p is 0), and fades in over the first bit of scrolling,
+   so the hero stays clean until you start to scroll. */
+.about::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(100% - 1px);
+  height: 22vh;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--mist-0), var(--mist));
+  opacity: calc(var(--p, 0) * 5);
+}
+.about__inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.about__title {
+  margin: 0 0 clamp(2.5rem, 6vw, 4.5rem);
+  padding-left: 0.3em;               /* offsets trailing letter-spacing so it centers */
+  font-size: clamp(1.15rem, 2.6vw, 1.9rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.about__text {
+  /* font size and line-height come from the body text (16px / 23px) */
+  max-width: 820px;
+  margin: 0 auto 2.25rem;
+}
+.about__body .about__text:last-child { margin-bottom: 0; }
+
+/* Opening paragraph: narrower */
+.about__body > .about__text:first-child {
+  max-width: 520px;
+  text-wrap: balance;
+}
+
+.about__login {
+  display: inline-block;
+  margin-top: clamp(4rem, 10vw, 7rem);
+  padding: 0.5rem 0;                 /* bigger tap target */
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  transition: color 0.3s ease;
+}
+.about__login:hover { color: var(--blue-mid); }
+
+/* Scroll highlight: each word starts light grey, main.js blends it to the final color */
+.word { color: var(--text-grey); }
+.is-static .word { color: var(--text-body); }   /* used when reduced motion is on */
+
+/* ---------- Contact (short band with a button) ---------- */
+.contact {
+  position: relative;
+  z-index: 1;                        /* sits above the fixed video */
+  background: var(--navy-soft);
+  color: var(--white);
+  text-align: center;
+  padding: clamp(3.5rem, 7vw, 5rem) clamp(1.25rem, 4vw, 3.5rem);
+}
+.contact__inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.contact__title {
+  margin: 0 0 0.9rem;
+  padding-left: 0.3em;               /* offsets trailing letter-spacing so it centers */
+  font-size: clamp(1.15rem, 2.6vw, 1.9rem);   /* same size as the About title */
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.contact__intro {
+  max-width: 34em;
+  margin: 0 auto 1.75rem;
+  color: var(--text-grey);
+}
+.contact__button {
+  padding: 0.9rem 2.25rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.contact__button:hover {
+  background: var(--white);
+  border-color: var(--white);
+  color: var(--navy);
+}
+
+/* ---------- Contact pop-up ---------- */
+.modal {
+  width: min(560px, calc(100% - 2rem));
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: var(--mist);
+  color: var(--navy);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 30px 80px rgba(0, 12, 32, 0.45);
+}
+.modal[open] { animation: modalIn 0.4s var(--ease); }
+.modal::backdrop {
+  background: rgba(0, 26, 64, 0.62);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px); }
+}
+.modal__panel {
+  position: relative;
+  padding: clamp(2rem, 5vw, 3rem);
+}
+.modal__close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--navy);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+.modal__close:hover { opacity: 1; }
+.modal__title {
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+/* Form (inside the pop-up) */
+.form {
+  display: grid;
+  gap: 1.5rem;
+}
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 1.75rem;
+}
+.form__field {
+  display: grid;
+  gap: 0.3rem;
+}
+.form__field label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0, 26, 64, 0.65);
+}
+.form__field input,
+.form__field textarea {
+  width: 100%;
+  padding: 0.6rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 26, 64, 0.3);
+  border-radius: 0;
+  outline: none;
+  font: inherit;
+  font-size: 16px;                   /* 16px minimum stops phones zooming in on tap */
+  line-height: 1.5;
+  color: var(--navy);
+  transition: border-color 0.3s ease;
+}
+.form__field textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+.form__field input:focus,
+.form__field textarea:focus { border-bottom-color: var(--navy); }
+
+/* Keep browser autofill from changing the field color */
+.form__field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--navy);
+  box-shadow: 0 0 0 1000px var(--mist) inset;
+  caret-color: var(--navy);
+}
+
+.form__submit {
+  justify-self: start;
+  padding: 0.9rem 2rem;
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+.form__submit:hover:not(:disabled) {
+  background: transparent;
+  color: var(--navy);
+}
+.form__submit:disabled { opacity: 0.6; cursor: default; }
+
+.form__status {
+  min-height: 1.5em;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.form__status.is-success { color: #2d5f94; }
+.form__status.is-error { color: #a33a3a; }
+
+/* Spam trap: invisible to people */
+.form__hp {
+  position: absolute;
+  left: -9999px;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  position: relative;
+  z-index: 1;                        /* sits above the fixed video */
+  background: var(--navy);
+  color: var(--white);
+  padding: 2.75rem clamp(1.25rem, 4vw, 3.5rem) 2.25rem;
+}
+.footer__inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;            /* stacked instead of side by side */
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* Left block: logo and disclaimer */
+.footer__left {
+  flex: none;                        /* was flex: 0 1 760px, which would turn into a height in a column */
+  min-width: 0;
+}
+.footer__logo { display: block; width: 230px; }
+.footer__logo img {
+  width: 230px;
+  height: auto;
+  /* trims the empty space built into the logo PNG */
+  margin: -1.1rem 0 -0.75rem;
+}
+.footer__disclaimer {
+  max-width: 760px;
+  margin: 1.1rem 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  text-wrap: balance;                /* evens out the line lengths */
+}
+
+.footer__right {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 1.1rem;
+  text-align: right;
+}
+
+/* Name block: Wesley Simons, company, mobile number */
+.footer__person {
+  display: grid;
+  gap: 0.15rem;
+  text-align: right;
+}
+.footer__name {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+.footer__role {
+  margin: 0 0 0.35rem;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+}
+.footer__person .footer__item { justify-content: flex-end; }
+
+.footer__contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  align-items: baseline;             /* email and office sit on the same text line */
+  gap: 0.75rem 2.5rem;
+}
+.footer__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.footer__label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+.footer__item address { font-style: normal; }
+.footer__item a {
+  display: inline-block;
+  padding: 0.4rem 0;                 /* bigger tap target... */
+  margin: -0.4rem 0;                 /* ...that doesn't push the text out of line */
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: color 0.3s ease;
+}
+.footer__item a:hover { color: var(--blue-grey); }
+.footer__copy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Footer layout: one centered column (all screen sizes) ----------
+   logo, then name block, then email and office, then a full-width divider, the disclaimer, the copyright.
+   The two wrapper columns are dissolved (display: contents) so each piece can be ordered on its own. */
+.footer { text-align: center; }
+
+.footer__inner {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.footer__left,
+.footer__right { display: contents; }
+
+.footer__logo {
+  order: 1;
+  margin: 0 auto 1.75rem;
+}
+
 /* Name block, centered */
 .footer__person {
   order: 2;
