@@ -276,6 +276,19 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   window.addEventListener('load', onScroll);
+
+  // Phones and in-app browsers can pause scroll events during touch momentum, which can leave
+  // the header band out of sync. Extra triggers keep it updated (touch devices only).
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    window.addEventListener('touchmove', onScroll, { passive: true });
+    window.addEventListener('touchend', onScroll, { passive: true });
+    window.addEventListener('scrollend', onScroll);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('scroll', onScroll);
+      window.visualViewport.addEventListener('resize', onScroll);
+    }
+  }
+
   onScroll();
 
   /* ---------- Contact pop-up + form (Formspree) ---------- */
