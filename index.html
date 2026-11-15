@@ -20,19 +20,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/img/hero-poster.jpg" fetchpriority="high">
   <link rel="preload" as="image" href="assets/images/whitewatercapital.png">
+  <script>try{if(sessionStorage.getItem('wwc-intro')==='1')document.documentElement.classList.add('intro-seen')}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" href="assets/images/WWC Full Logo w Script - Navy.png">
 </head>
 <body class="is-loading">
-
-  <!-- Intro loader: solid navy, logo draws in (trees rise, wordmark wipes in) -->
-  <div class="loader" id="loader" aria-hidden="true">
-    <div class="loader__logo">
-      <div class="loader__trees"><img src="assets/images/whitewatercapital.png" alt=""></div>
-      <img src="assets/images/whitewatercapital.png" alt="" class="loader__word">
-    </div>
-  </div>
 
   <!-- Header -->
   <nav class="header" id="header" aria-label="Main navigation">
@@ -54,14 +48,17 @@
 
   <!-- Hero -->
   <header class="hero" id="top">
-    <video class="hero__video" autoplay muted loop playsinline preload="auto" poster="assets/img/hero-poster.jpg">
-      <source src="assets/videos/whiedd.mp4">
-      <source src="assets/videos/whiedd.mp4">
+    <video class="hero__video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/img/hero-poster.jpg" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" tabindex="-1" aria-hidden="true">
+      <source src="assets/videos/whiedd.mp4" type="video/mp4">
     </video>
     <div class="hero__overlay"></div>
 
     <div class="hero__content">
-      <img src="assets/images/whitewatercapital.png" alt="Whitewater Capital" class="hero__logo">
+      <!-- Logo draws itself in on load (trees rise, wordmark wipes in), then stays -->
+      <div class="hero__logo" role="img" aria-label="Whitewater Capital">
+        <div class="hero__trees"><img src="assets/images/whitewatercapital.png" alt=""></div>
+        <img src="assets/images/whitewatercapital.png" alt="" class="hero__word">
+      </div>
       <p class="hero__tagline"></p>
     </div>
 
