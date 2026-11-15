@@ -101,6 +101,13 @@
       }
       document.addEventListener('visibilitychange', () => setPlaying(heroVisible && !document.hidden));
 
+      // If the phone blocks autoplay (Low Power Mode, some in-app browsers), start the video on the
+      // first touch, tap, scroll or key press instead of leaving it stuck on the poster.
+      const kick = () => { if (playing && front.paused) front.play().catch(() => {}); };
+      kick();
+      ['touchend', 'pointerup', 'click', 'keydown', 'scroll'].forEach((ev) =>
+        window.addEventListener(ev, kick, { passive: true }));
+
       function tick() {
         if (playing && !swapping && front.duration && front.currentTime >= front.duration - FADE_MS / 1000) {
           swapping = true;
@@ -282,6 +289,87 @@
   if (window.matchMedia('(pointer: coarse)').matches) {
     window.addEventListener('touchmove', onScroll, { passive: true });
     window.addEventListener('touchend', onScroll, { passive: true });
+    window.addEventListener('scrollend', onScroll);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('scroll', onScroll);
+      window.visualViewport.addEventListener('resize', onScroll);
+    }
+  }
+
+  onScroll();
+
+  /* ---------- Contact pop-up + form (Formspree) ---------- */
+  const modal = document.getElementById('contactModal');
+  const openBtn = document.getElementById('contactOpen');
+  const closeBtn = document.getElementById('contactClose');
+  const form = document.getElementById('contactForm');
+
+  if (modal && openBtn) {
+    openBtn.addEventListener('click', () => {
+      if (form) {
+        const s = form.querySelector('.form__status');
+        s.textContent = '';
+        s.className = 'form__status';
+      }
+      modal.showModal();
+      body.classList.add('modal-open');
+    });
+
+    closeBtn.addEventListener('click', () => modal.close());
+
+    // Click on the dimmed area outside the box closes it
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+
+    // Fires for every way of closing (button, Esc, backdrop, after sending)
+    modal.addEventListener('close', () => body.classList.remove('modal-open'));
+  }
+
+  if (form) {
+    const status = form.querySelector('.form__status');
+    const btn = form.querySelector('.form__submit');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = '';
+      status.className = 'form__status';
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+        if (!res.ok) throw new Error('Request failed');
+        form.reset();
+        status.textContent = 'Thank you. Your message has been sent.';
+        status.classList.add('is-success');
+        if (modal) setTimeout(() => { if (modal.open) modal.close(); }, 2800);
+      } catch (err) {
+        status.textContent = 'Something went wrong. Please try again or email us directly.';
+        status.classList.add('is-error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send message';
+      }
+    });
+  }
+
+  /* ---------- Mobile menu ---------- */
+  function setMenu(open) {
+    header.classList.toggle('is-open', open);
+    body.classList.toggle('menu-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+
+  toggle.addEventListener('click', () => setMenu(!header.classList.contains('is-open')));
+  menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
+})();
+touchend', onScroll, { passive: true });
     window.addEventListener('scrollend', onScroll);
     if (window.visualViewport) {
       window.visualViewport.addEventListener('scroll', onScroll);
