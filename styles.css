@@ -171,13 +171,13 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* Backdrop layer 0: the poster frame, fixed behind the video. It paints as soon as the CSS and
    the poster image arrive, so the page opens on the river instead of a navy screen, and the
-   video fades in over it. Navy is only the fallback color if the poster can't load. */
+   video fades in over it. The dark green is only the fallback color if the poster is slow or can't load. */
 .hero::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -3;
-  background: var(--navy) url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;
+  background: #22363a url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;   /* dark river green, so any gap is not a navy flash */
 }
 
 /* Backdrop layer 1: the video, fixed to the screen (two stacked copies crossfade for a seamless loop) */
@@ -889,4 +889,4 @@ ul { list-style: none; margin: 0; padding: 0; }
   .hero__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
 }
-
+  
