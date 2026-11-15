@@ -247,6 +247,17 @@ ul { list-style: none; margin: 0; padding: 0; }
   /* no background or overflow:hidden here, so the fixed video behind shows through */
 }
 
+/* Backdrop layer 0: the poster frame, fixed behind the video. It paints as soon as the CSS and
+   the poster image arrive, so the page opens on the river instead of a navy screen, and the
+   video fades in over it. Navy is only the fallback color if the poster can't load. */
+.hero::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: var(--navy) url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;
+}
+
 /* Backdrop layer 1: the video, fixed to the screen (two stacked copies crossfade for a seamless loop) */
 .hero__video {
   position: fixed;
@@ -261,6 +272,19 @@ ul { list-style: none; margin: 0; padding: 0; }
   transition: opacity var(--fade) ease, transform 4s var(--ease);
 }
 .hero__video.is-active { opacity: 1; }
+
+/* Never show the phone's own play button or controls on the background video
+   (iOS draws a big play button when it blocks autoplay, e.g. in Low Power Mode). */
+.hero__video { pointer-events: none; }
+.hero__video::-webkit-media-controls,
+.hero__video::-webkit-media-controls-panel,
+.hero__video::-webkit-media-controls-play-button,
+.hero__video::-webkit-media-controls-start-playback-button,
+.hero__video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0 !important;
+}
 .is-ready .hero__video { transform: scale(1); }
 
 /* Backdrop layer 2: navy tint for legibility, also fixed.
@@ -682,45 +706,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   margin: 0 0 0.35rem;
   font-size: 15px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.75);
-}
-.footer__person .footer__item { justify-content: flex-end; }
-
-.footer__contact {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  align-items: baseline;             /* email and office sit on the same text line */
-  gap: 0.75rem 2.5rem;
-}
-.footer__item {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-  font-size: 15px;
-  line-height: 1.5;
-}
-.footer__label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
-.footer__item address { font-style: normal; }
-.footer__item a {
-  display: inline-block;
-  padding: 0.4rem 0;                 /* bigger tap target... */
-  margin: -0.4rem 0;                 /* ...that doesn't push the text out of line */
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
-  transition: color 0.3s ease;
-}
-.footer__item a:hover { color: var(--blue-grey); }
-.footer__copy {
-  margin: 0;
-  fo: arrowIn 1.4s var(--ease) 0.9s backwards;
+  color: rgba(255,: arrowIn 1.4s var(--ease) 0.9s backwards;
 }
 @keyframes arrowIn {
   from { opacity: 0; }
