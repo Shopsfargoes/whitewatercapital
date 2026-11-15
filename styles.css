@@ -33,7 +33,8 @@ html {
 }
 body {
   margin: 0;
-  background: var(--navy);
+  background: transparent;            /* no colour while loading: navy is applied only after the poster has faded in */
+  transition: background-color 0s linear 0.9s;
   -webkit-font-smoothing: antialiased;
 
   /* Body text */
@@ -177,8 +178,16 @@ ul { list-style: none; margin: 0; padding: 0; }
   position: fixed;
   inset: 0;
   z-index: -3;
-  background: #22363a url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;   /* dark river green, so any gap is not a navy flash */
+  background: transparent url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
+/* Nothing is drawn (no colour at all) until the poster image has loaded; then the whole backdrop fades in together.
+   main.js adds .poster-ready to <body> (it also does so after 3 seconds, so the page can never stay blank). */
+body.poster-ready { background-color: var(--navy); }
+body.poster-ready .hero::before,
+body.poster-ready .hero__overlay { opacity: 1; }
+body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /* logo draws in when the backdrop appears */
 
 /* Backdrop layer 1: the video, fixed to the screen (two stacked copies crossfade for a seamless loop) */
 .hero__video {
@@ -216,6 +225,8 @@ ul { list-style: none; margin: 0; padding: 0; }
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
   background:
     linear-gradient(to bottom,
       rgba(0, 26, 64, 0.55) 0%,
@@ -694,6 +705,13 @@ ul { list-style: none; margin: 0; padding: 0; }
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6);
 }
+.footer__label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
 .footer__item address { font-style: normal; }
 .footer__item a {
   display: inline-block;
@@ -889,4 +907,4 @@ ul { list-style: none; margin: 0; padding: 0; }
   .hero__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
 }
-  
+
