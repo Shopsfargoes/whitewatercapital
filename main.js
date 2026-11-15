@@ -19,6 +19,19 @@
   body.classList.remove('is-loading');
   body.classList.add('is-ready');
 
+  /* ---------- Reveal the backdrop only once the poster image has loaded (no colour while loading) ---------- */
+  const revealBackdrop = () => body.classList.add('poster-ready');
+  const posterSrc = video && video.getAttribute('poster');
+  if (posterSrc) {
+    const img = new Image();
+    img.onload = img.onerror = revealBackdrop;     // a missing poster must not leave the page blank
+    img.src = posterSrc;
+    if (img.complete) revealBackdrop();
+    setTimeout(revealBackdrop, 3000);              // safety net on very slow connections
+  } else {
+    revealBackdrop();
+  }
+
   /* ---------- Seamless video loop (crossfade between two copies) ---------- */
   if (video) {
     // Fade the video in only once it is really playing, so it never fades in as an empty frame.
