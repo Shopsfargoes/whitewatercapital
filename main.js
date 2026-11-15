@@ -34,10 +34,13 @@
 
   /* ---------- Seamless video loop (crossfade between two copies) ---------- */
   if (video) {
-    // Fade the video in only once it is really playing, so it never fades in as an empty frame.
+    // Fade the video in as soon as its first frame is ready (it never fades in as an empty frame).
+    // This does not wait for "playing", so it still shows if the phone delays or blocks autoplay.
     const showVideo = () => video.classList.add('is-active');
-    if (video.readyState >= 3 && !video.paused) showVideo();
-    else video.addEventListener('playing', showVideo, { once: true });
+    if (video.readyState >= 2) showVideo();
+    ['loadeddata', 'canplay', 'playing'].forEach((ev) =>
+      video.addEventListener(ev, () => { if (video.readyState >= 2) showVideo(); }));
+    if (!reduceMotion) video.play().catch(() => {});   // ask for playback once; the touch fallback below handles blocks
 
     if (reduceMotion) {
       video.removeAttribute('autoplay');
@@ -345,4 +348,4 @@
   window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
 })();
 
-        
+          
