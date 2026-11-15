@@ -348,4 +348,41 @@
   window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
 })();
 
+document.addEventListener("DOMContentLoaded", function() {
+  const video = document.querySelector('.hero__video');
+  
+  if (video) {
+    // Ensure properties are enforced via JS as well
+    video.muted = true;
+    video.playsInline = true;
+    video.autoplay = true;
+
+    // Attempt to play and catch the promise
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        // Autoplay started successfully!
+        console.log("Hero video autoplaying successfully.");
+      }).catch(error => {
+        // Autoplay was prevented by mobile browser policy or Low Power Mode
+        console.warn("Autoplay blocked, setting up touch/scroll fallback:", error);
+
+        // Fallback: Play video on the user's first interaction anywhere on the page
+        const triggerPlay = () => {
+          video.play().catch(e => console.log("Fallback play prevented:", e));
+          // Remove listeners after first successful trigger
+          window.removeEventListener('touchstart', triggerPlay);
+          window.removeEventListener('scroll', triggerPlay);
+          window.removeEventListener('click', triggerPlay);
+        };
+
+        window.addEventListener('touchstart', triggerPlay, { once: true });
+        window.addEventListener('scroll', triggerPlay, { once: true });
+        window.addEventListener('click', triggerPlay, { once: true });
+      });
+    }
+  }
+});
+
           
