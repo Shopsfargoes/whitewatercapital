@@ -2,12 +2,9 @@
   'use strict';
 
   const FADE_MS = 1200;       // keep in sync with --fade in styles.css
-  const MIN_INTRO_MS = 4000;  // shortest time the loader stays up
-  const MAX_INTRO_MS = 6000;  // never keep a visitor waiting longer than this
 
   const body = document.body;
   const root = document.documentElement;
-  const loader = document.getElementById('loader');
   const header = document.getElementById('header');
   const toggle = document.getElementById('navToggle');
   const menu = document.getElementById('navMenu');
@@ -18,47 +15,9 @@
 
   const clamp = (n) => Math.min(1, Math.max(0, n));
 
-  /* ---------- Intro (plays once per session) ---------- */
-  let seen = false;
-  try { seen = sessionStorage.getItem('wwc-intro') === '1'; } catch (e) {}
-
-  function reveal() {
-    try { sessionStorage.setItem('wwc-intro', '1'); } catch (e) {}
-    body.classList.remove('is-loading');
-    body.classList.add('is-ready');
-    if (loader) {
-      loader.classList.add('is-done');
-      setTimeout(() => loader.remove(), 1600);
-    }
-  }
-
-  if (seen) {
-    // Repeat visit: skip the loader
-    if (loader) loader.remove();
-    reveal();
-  } else {
-    const start = performance.now();
-
-    const pageLoaded = new Promise((resolve) => {
-      if (document.readyState === 'complete') resolve();
-      else window.addEventListener('load', resolve, { once: true });
-    });
-
-    const videoReady = new Promise((resolve) => {
-      if (!video || video.readyState >= 3) resolve();
-      else {
-        video.addEventListener('canplay', resolve, { once: true });
-        video.addEventListener('error', resolve, { once: true });
-      }
-    });
-
-    const timeout = new Promise((resolve) => setTimeout(resolve, MAX_INTRO_MS));
-
-    Promise.race([Promise.all([pageLoaded, videoReady]), timeout]).then(() => {
-      const wait = Math.max(0, MIN_INTRO_MS - (performance.now() - start));
-      setTimeout(reveal, wait);
-    });
-  }
+  /* ---------- Page ready (no preloader: the hero shows straight away) ---------- */
+  body.classList.remove('is-loading');
+  body.classList.add('is-ready');
 
   /* ---------- Seamless video loop (crossfade between two copies) ---------- */
   if (video) {
@@ -289,87 +248,6 @@
   if (window.matchMedia('(pointer: coarse)').matches) {
     window.addEventListener('touchmove', onScroll, { passive: true });
     window.addEventListener('touchend', onScroll, { passive: true });
-    window.addEventListener('scrollend', onScroll);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('scroll', onScroll);
-      window.visualViewport.addEventListener('resize', onScroll);
-    }
-  }
-
-  onScroll();
-
-  /* ---------- Contact pop-up + form (Formspree) ---------- */
-  const modal = document.getElementById('contactModal');
-  const openBtn = document.getElementById('contactOpen');
-  const closeBtn = document.getElementById('contactClose');
-  const form = document.getElementById('contactForm');
-
-  if (modal && openBtn) {
-    openBtn.addEventListener('click', () => {
-      if (form) {
-        const s = form.querySelector('.form__status');
-        s.textContent = '';
-        s.className = 'form__status';
-      }
-      modal.showModal();
-      body.classList.add('modal-open');
-    });
-
-    closeBtn.addEventListener('click', () => modal.close());
-
-    // Click on the dimmed area outside the box closes it
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
-
-    // Fires for every way of closing (button, Esc, backdrop, after sending)
-    modal.addEventListener('close', () => body.classList.remove('modal-open'));
-  }
-
-  if (form) {
-    const status = form.querySelector('.form__status');
-    const btn = form.querySelector('.form__submit');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      status.textContent = '';
-      status.className = 'form__status';
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
-
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
-        });
-        if (!res.ok) throw new Error('Request failed');
-        form.reset();
-        status.textContent = 'Thank you. Your message has been sent.';
-        status.classList.add('is-success');
-        if (modal) setTimeout(() => { if (modal.open) modal.close(); }, 2800);
-      } catch (err) {
-        status.textContent = 'Something went wrong. Please try again or email us directly.';
-        status.classList.add('is-error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Send message';
-      }
-    });
-  }
-
-  /* ---------- Mobile menu ---------- */
-  function setMenu(open) {
-    header.classList.toggle('is-open', open);
-    body.classList.toggle('menu-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-  }
-
-  toggle.addEventListener('click', () => setMenu(!header.classList.contains('is-open')));
-  menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
-  window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
-})();
-touchend', onScroll, { passive: true });
     window.addEventListener('scrollend', onScroll);
     if (window.visualViewport) {
       window.visualViewport.addEventListener('scroll', onScroll);
