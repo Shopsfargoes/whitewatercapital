@@ -21,7 +21,10 @@
 
   /* ---------- Seamless video loop (crossfade between two copies) ---------- */
   if (video) {
-    video.classList.add('is-active');
+    // Fade the video in only once it is really playing, so it never fades in as an empty frame.
+    const showVideo = () => video.classList.add('is-active');
+    if (video.readyState >= 3 && !video.paused) showVideo();
+    else video.addEventListener('playing', showVideo, { once: true });
 
     if (reduceMotion) {
       video.removeAttribute('autoplay');
@@ -329,4 +332,4 @@
   window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
 })();
 
-    
+        
