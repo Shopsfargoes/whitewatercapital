@@ -645,12 +645,10 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   margin: -1.1rem 0 -0.75rem;
 }
 .footer__disclaimer {
-  max-width: 760px;
-  margin: 1.1rem 0 0;
-  font-size: 12px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
-  text-wrap: balance;                /* evens out the line lengths */
+  order: 4;
+  max-width: 1100px;          /* was 720px: wider, so it runs in 2 lines instead of 3 */
+  margin: 1.25rem auto 0.9rem; /* was 1.75rem auto 1.25rem: less space above and below */
+  text-align: center;
 }
 
 .footer__right {
