@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Whitewater Capital | Private Investment Firm</title>
   <meta name="description" content="Whitewater Capital is a value-oriented investment firm pursuing a generalist strategy across private markets.">
-  <meta name="theme-color" content="#001a40">
+  <meta name="theme-color" content="#2b2f33">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Whitewater Capital">
@@ -23,15 +23,18 @@
   <link rel="preload" as="image" href="assets/img/hero-poster.jpg" fetchpriority="high">
   <script>
     /* Hold the hero back (no colour at all) until the poster image is in, then fade it in together.
+       "media-ok" is only added when the poster really loaded, so the navy tint never shows over nothing.
        Self-contained and time-limited, so it can never leave the page blank. */
     (function () {
       var root = document.documentElement;
       root.classList.add('hero-wait');
       var done = function () { root.classList.remove('hero-wait'); };
+      var ok = function () { root.classList.add('media-ok'); done(); };
       var img = new Image();
-      img.onload = img.onerror = done;
+      img.onload = ok;
+      img.onerror = done;
       img.src = 'assets/img/hero-poster.jpg';
-      if (img.complete) done();
+      if (img.complete && img.naturalWidth) ok();
       setTimeout(done, 2500);
     })();
   </script>
