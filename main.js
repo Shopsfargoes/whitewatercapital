@@ -34,9 +34,18 @@
 
   /* ---------- Seamless video loop (crossfade between two copies) ---------- */
   if (video) {
+    // Enforce the autoplay-friendly properties in JS as well as in the HTML
+    video.muted = true;
+    video.playsInline = true;
+    video.autoplay = true;
+
     // Fade the video in as soon as its first frame is ready (it never fades in as an empty frame).
     // This does not wait for "playing", so it still shows if the phone delays or blocks autoplay.
-    const showVideo = () => video.classList.add('is-active');
+    // It also switches the navy tint on (html.media-ok), so the tint never shows over an empty screen.
+    const showVideo = () => {
+      video.classList.add('is-active');
+      root.classList.add('media-ok');
+    };
     if (video.readyState >= 2) showVideo();
     ['loadeddata', 'canplay', 'playing'].forEach((ev) =>
       video.addEventListener(ev, () => { if (video.readyState >= 2) showVideo(); }));
@@ -83,7 +92,7 @@
       // first touch, tap, scroll or key press instead of leaving it stuck on the poster.
       const kick = () => { if (playing && front.paused) front.play().catch(() => {}); };
       kick();
-      ['touchend', 'pointerup', 'click', 'keydown', 'scroll'].forEach((ev) =>
+      ['touchstart', 'touchend', 'pointerup', 'click', 'keydown', 'scroll'].forEach((ev) =>
         window.addEventListener(ev, kick, { passive: true }));
 
       function tick() {
@@ -347,42 +356,3 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   window.addEventListener('resize', () => { if (window.innerWidth > 820) setMenu(false); });
 })();
-
-document.addEventListener("DOMContentLoaded", function() {
-  const video = document.querySelector('.hero__video');
-  
-  if (video) {
-    // Ensure properties are enforced via JS as well
-    video.muted = true;
-    video.playsInline = true;
-    video.autoplay = true;
-
-    // Attempt to play and catch the promise
-    const playPromise = video.play();
-
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        // Autoplay started successfully!
-        console.log("Hero video autoplaying successfully.");
-      }).catch(error => {
-        // Autoplay was prevented by mobile browser policy or Low Power Mode
-        console.warn("Autoplay blocked, setting up touch/scroll fallback:", error);
-
-        // Fallback: Play video on the user's first interaction anywhere on the page
-        const triggerPlay = () => {
-          video.play().catch(e => console.log("Fallback play prevented:", e));
-          // Remove listeners after first successful trigger
-          window.removeEventListener('touchstart', triggerPlay);
-          window.removeEventListener('scroll', triggerPlay);
-          window.removeEventListener('click', triggerPlay);
-        };
-
-        window.addEventListener('touchstart', triggerPlay, { once: true });
-        window.addEventListener('scroll', triggerPlay, { once: true });
-        window.addEventListener('click', triggerPlay, { once: true });
-      });
-    }
-  }
-});
-
-          
