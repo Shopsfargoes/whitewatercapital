@@ -33,8 +33,8 @@ html {
 }
 body {
   margin: 0;
-  background: transparent;            /* no colour while loading: navy is applied only after the poster has faded in */
-  transition: background-color 0s linear 0.9s;
+  background: var(--navy);
+  transition: background-color 0s linear 0.9s;   /* navy returns only after the hero has faded in */
   -webkit-font-smoothing: antialiased;
 
   /* Body text */
@@ -179,15 +179,15 @@ ul { list-style: none; margin: 0; padding: 0; }
   inset: 0;
   z-index: -3;
   background: transparent url("assets/img/hero-poster.jpg") var(--video-pos) / cover no-repeat;
-  opacity: 0;
   transition: opacity 0.6s ease;
 }
-/* Nothing is drawn (no colour at all) until the poster image has loaded; then the whole backdrop fades in together.
-   main.js adds .poster-ready to <body> (it also does so after 3 seconds, so the page can never stay blank). */
-body.poster-ready { background-color: var(--navy); }
-body.poster-ready .hero::before,
-body.poster-ready .hero__overlay { opacity: 1; }
-body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /* logo draws in when the backdrop appears */
+/* No colour while loading. A tiny script in the <head> of index.html adds the class "hero-wait" to <html> only while
+   it waits for the poster image, then removes it (after 2.5 seconds at the latest). Everything is visible by default,
+   so if that script is ever missing or out of date, the hero simply shows normally: it can never stay hidden. */
+html.hero-wait body { background: transparent; }
+html.hero-wait .hero::before,
+html.hero-wait .hero__overlay { opacity: 0; }
+html.hero-wait .hero * { animation-play-state: paused !important; }   /* logo draws in when the backdrop appears */
 
 /* Backdrop layer 1: the video, fixed to the screen (two stacked copies crossfade for a seamless loop) */
 .hero__video {
@@ -225,7 +225,6 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0;
   transition: opacity 0.6s ease;
   background:
     linear-gradient(to bottom,
@@ -763,20 +762,9 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
 /* Disclaimer: a centered block of about three lines */
 .footer__disclaimer {
   order: 4;
-  max-width: none;                   /* uses the full footer width */
-  text-wrap: wrap;                   /* fills each line edge to edge (balance made the lines short and narrow) */
+  max-width: 1400px;                 /* wider, so the text spreads out in 1-2 lines instead of 3 */
   margin: 0.9rem auto 0.6rem;
   text-align: center;
-}
-
-/* Desktop: footer runs the full width, and the disclaimer is a touch smaller so it fits on one line
-   on most laptops and monitors (about 1490px wide and up). On narrower screens it wraps to two. */
-@media (min-width: 821px) {
-  .footer__inner { max-width: none; }
-  .footer__disclaimer { font-size: 11px; }
-}
-@media (min-width: 1620px) {
-  .footer__disclaimer { font-size: 12px; }   /* wide monitors have room for the normal size on one line */
 }
 
 .footer__copy {
@@ -911,5 +899,4 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   .hero__trees,
   .hero__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
-}
-  
+    }
