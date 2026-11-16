@@ -621,7 +621,7 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   z-index: 1;                        /* sits above the fixed video */
   background: var(--navy);
   color: var(--white);
-  padding: 2.75rem clamp(1.25rem, 4vw, 3.5rem) 2.25rem;
+  padding: 2rem clamp(1.25rem, 4vw, 3.5rem) 1.5rem;   /* was 2.75rem top and 2.25rem bottom */
 }
 .footer__inner {
   max-width: 1300px;
