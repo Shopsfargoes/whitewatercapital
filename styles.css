@@ -10,6 +10,7 @@
   --mist-0: rgba(244, 244, 242, 0);  /* same color, fully transparent (keep in sync with --mist) */
   --text-body: #4d5660;              /* body text on light backgrounds */
   --text-grey: #c3c9d2;              /* About text before it highlights, and text on navy */
+  --load-bg: #2b2f33;                /* neutral grey shown behind the hero until the poster/video paint (set to the poster's average colour if you like) */
 
   --font: "DM Sans", system-ui, sans-serif;
 
@@ -27,14 +28,14 @@
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html {
+  background: var(--load-bg);        /* never navy: this is all that shows before the poster arrives */
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 body {
   margin: 0;
-  background: var(--navy);
-  transition: background-color 0s linear 0.9s;   /* navy returns only after the hero has faded in */
+  background: transparent;           /* must stay transparent: a body background would paint over the fixed hero layers */
   -webkit-font-smoothing: antialiased;
 
   /* Body text */
@@ -184,10 +185,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* No colour while loading. A tiny script in the <head> of index.html adds the class "hero-wait" to <html> only while
    it waits for the poster image, then removes it (after 2.5 seconds at the latest). Everything is visible by default,
    so if that script is ever missing or out of date, the hero simply shows normally: it can never stay hidden. */
-html.hero-wait body { background: transparent; }
 html.hero-wait .hero::before,
 html.hero-wait .hero__overlay { opacity: 0; }
 html.hero-wait .hero * { animation-play-state: paused !important; }   /* logo draws in when the backdrop appears */
+/* The navy tint only appears once the poster or video is actually showing (html.media-ok, set by the head script and main.js) */
+html:not(.media-ok) .hero__overlay { opacity: 0; }
 
 /* Backdrop layer 1: the video, fixed to the screen (two stacked copies crossfade for a seamless loop) */
 .hero__video {
@@ -681,6 +683,12 @@ html.hero-wait .hero * { animation-play-state: paused !important; }   /* logo dr
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.75);
 }
+.footer__role {
+  margin: 0 0 0.35rem;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+}
 .footer__person .footer__item { justify-content: flex-end; }
 
 .footer__contact {
@@ -900,4 +908,3 @@ html.hero-wait .hero * { animation-play-state: paused !important; }   /* logo dr
   .hero__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
 }
-  
