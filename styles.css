@@ -15,8 +15,8 @@
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --fade: 1.2s;                      /* video crossfade, keep in sync with FADE_MS in main.js */
-  --logo-w: min(520px, 78vw);        /* width of the big hero logo */
-  --logo-top: 250px;                 /* distance from the top of the screen to the big logo (phones: see mobile block) */
+  --logo-w: min(520px, 78vw, 95vh);  /* width of the big hero logo (also shrinks on short windows) */
+  --logo-top: clamp(90px, 28vh, 250px);   /* distance from the top to the big logo: 250px on tall screens, less on short ones (phones: see mobile block) */
 
   /* Which part of the video stays in frame on wide screens (x y).
      Vertical clips: a higher y shows more creek, a lower y shows more sky.
@@ -621,7 +621,7 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   z-index: 1;                        /* sits above the fixed video */
   background: var(--navy);
   color: var(--white);
-  padding: 2rem clamp(1.25rem, 4vw, 3.5rem) 1.5rem;   /* was 2.75rem top and 2.25rem bottom */
+  padding: 1.5rem clamp(1.25rem, 4vw, 3.5rem) 1.1rem;   /* slimmer footer band */
 }
 .footer__inner {
   max-width: 1300px;
@@ -645,10 +645,12 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   margin: -1.1rem 0 -0.75rem;
 }
 .footer__disclaimer {
-  order: 4;
-  max-width: 1100px;          /* was 720px: wider, so it runs in 2 lines instead of 3 */
-  margin: 1.25rem auto 0.9rem; /* was 1.75rem auto 1.25rem: less space above and below */
-  text-align: center;
+  max-width: 760px;
+  margin: 1.1rem 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  text-wrap: balance;                /* evens out the line lengths */
 }
 
 .footer__right {
@@ -736,7 +738,7 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
 
 .footer__logo {
   order: 1;
-  margin: 0 auto 1.75rem;
+  margin: 0 auto 1rem;
 }
 
 /* Name block, centered */
@@ -753,7 +755,7 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
   order: 3;
   justify-content: center;
   gap: 0.5rem 2.5rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .footer__item { text-align: center; }
@@ -761,8 +763,8 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
 /* Disclaimer: a centered block of about three lines */
 .footer__disclaimer {
   order: 4;
-  max-width: 720px;
-  margin: 1.75rem auto 1.25rem;
+  max-width: 1400px;                 /* wider, so the text spreads out in 1-2 lines instead of 3 */
+  margin: 0.9rem auto 0.6rem;
   text-align: center;
 }
 
@@ -867,6 +869,7 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
 
 /* ---------- Small phones: label above value, each centered ---------- */
 @media (max-width: 600px) {
+  .footer__item { overflow-wrap: anywhere; }   /* long email or address wraps instead of overflowing */
   .footer__contact {
     flex-direction: column;
     align-items: center;
@@ -877,6 +880,12 @@ body:not(.poster-ready) .hero * { animation-play-state: paused !important; }   /
     align-items: center;
     gap: 0;
   }
+}
+
+/* ---------- Short screens (phones turned sideways) ---------- */
+@media (max-height: 520px) {
+  :root { --logo-top: 3.5rem; }
+  .hero__scroll { bottom: 0.75rem; }
 }
 
 /* ---------- Reduced motion ---------- */
