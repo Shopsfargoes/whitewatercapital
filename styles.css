@@ -899,4 +899,5 @@ html.hero-wait .hero * { animation-play-state: paused !important; }   /* logo dr
   .hero__trees,
   .hero__word { animation-delay: 0s !important; }
   .hero__scroll svg { animation: none; }
-    }
+}
+  
